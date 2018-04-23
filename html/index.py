@@ -830,7 +830,7 @@ html ="""
             function rescan_bc(){
                 rescan_spent_btn.disable(true);
                 rescan_bc_btn.disable(true);
-                show_progress("Rescan blockchain...");
+                show_app_progress("Rescan blockchain...");
                 app_hub.rescan_bc();
                 return false;
             }
