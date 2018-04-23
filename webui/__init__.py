@@ -633,8 +633,8 @@ class MainWebUI(BaseWebUI):
                     "Are you sure to exit %s?" % APP_NAME, \
                     QMessageBox.Yes | QMessageBox.No, defaultButton=QMessageBox.Yes)
         if not show_confirmation or reply==QMessageBox.Yes:
-            QTimer.singleShot(250, self.app.quit)
             self.hide_wallet()
+            QTimer.singleShot(250, self.app.quit)
                                     
                 
     def _handleShowAppAction(self):
