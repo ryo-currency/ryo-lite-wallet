@@ -1,4 +1,4 @@
-Copyright (c) 2017, The Sumokoin Project (www.sumokoin.org)
+Copyright (c) 2018, The Sumo Project (www.sumokoin.org)
 
 All rights reserved.
 
