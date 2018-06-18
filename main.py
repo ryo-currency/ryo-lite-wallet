@@ -30,8 +30,6 @@ file_hashes = [
         ('www/css/fonts/fontawesome-webfont.ttf', '7b5a4320fba0d4c8f79327645b4b9cc875a2ec617a557e849b813918eb733499'),
         ('www/css/fonts/glyphicons-halflings-regular.ttf', 'e395044093757d82afcb138957d06a1ea9361bdcf0b442d06a18a8051af57456'),
         ('www/css/fonts/RoboReg.ttf', 'dc66a0e6527b9e41f390f157a30f96caed33c68d5db0efc6864b4f06d3a41a50'),
-        
-        ('certs/cacert-2018-03-07.pem', 'a8efad67b5e7f02a463c79606cf8a0545f4a6185d94e1c1b647d4a26aeaceb37'),
     ]
 
 def _check_file_integrity(app):
@@ -69,8 +67,8 @@ def main():
     # Application setup
     
     app = QSingleApplication(sys.argv)
-    app.setOrganizationName('Sumokoin')
-    app.setOrganizationDomain('www.sumokoin.org')
+    app.setOrganizationName('Ryo')
+    app.setOrganizationDomain('ryo-currency.com')
     app.setApplicationName(APP_NAME)
     app.setProperty("AppPath", app_path)
     app.setProperty("ResPath", resources_path)

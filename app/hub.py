@@ -47,7 +47,7 @@ class Hub(QObject):
     def __init__(self, app):
         super(Hub, self).__init__()
         self.app = app
-        self.log_file = os.path.join(DATA_DIR, 'logs', "sumo-wallet-rpc.log")
+        self.log_file = os.path.join(DATA_DIR, 'logs', "ryo-wallet-rpc.log")
  
     def setUI(self, ui):
         self.ui = ui
@@ -250,7 +250,7 @@ class Hub(QObject):
                                         if mnemonic_seed else "Creating wallet...")
                 self.app_process_events()
                 wallet_filepath = os.path.join(wallet_dir_path, str(uuid.uuid4().hex) + '.bin')
-                wallet_log_path = os.path.join(wallet_dir_path, 'sumo-wallet-cli.log')
+                wallet_log_path = os.path.join(wallet_dir_path, 'ryo-wallet-cli.log')
                 resources_path = self.app.property("ResPath")
                 if not mnemonic_seed: # i.e. create new wallet
                     self.wallet_cli_manager = WalletCliManager(resources_path, \
@@ -334,7 +334,7 @@ class Hub(QObject):
                     self.is_restore_wallet_in_progress = False
                     return
                 counter += 1
-                if counter > 120:
+                if counter > 600:
                     QMessageBox.critical(self.new_wallet_ui, \
                             'Error Creating/Restoring Wallet',\
                             """Error: Unknown error! Wallet RPC appears not to be responding.""")

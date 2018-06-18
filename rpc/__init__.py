@@ -52,7 +52,7 @@ class RPCRequest(Thread):
         
         self.response_queue = Queue(1)
         self.daemon = True
-        self.enable_ssl = enable_ssl
+        self.enable_ssl = False
 
 
     def run(self):
@@ -75,8 +75,8 @@ class RPCRequest(Thread):
                     self.url,
                     data=json.dumps(self.rpc_input),
                     headers=self.headers,
-                    verify=CA_CERTS_PATH, 
                     timeout=120)
+
             else:
                 response = requests.post(
                     self.url,
@@ -139,6 +139,7 @@ class DaemonRPCRequest():
     
 class WalletRPCRequest():
     def __init__(self, app, user_agent, enable_ssl):
+        enable_ssl=False
         self.port = WALLET_RPC_PORT if not enable_ssl else WALLET_RPC_PORT_SSL
         self.url = "http://localhost:%d/json_rpc" % self.port
         self.app = app
@@ -153,7 +154,11 @@ class WalletRPCRequest():
         req = RPCRequest(rpc_input, self.url, self.app, self.user_agent)
         req.start()
         return True
-        
+
+    def getheight(self):
+        rpc_input = {"method":"getheight"}
+        res = self.send_request(rpc_input)
+        return res
         
     def query_key(self, key_type="mnemonic"):
         rpc_input = {"method":"query_key", "params": {"key_type": key_type}}
@@ -169,7 +174,7 @@ class WalletRPCRequest():
         res = self.send_request(rpc_input)
         if res['status'] == 'OK':
             return res
-        return res['status']
+        return res
     
     def create_address(self):
         rpc_input = {"method":"create_address"}

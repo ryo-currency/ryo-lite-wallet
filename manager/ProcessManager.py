@@ -79,12 +79,12 @@ class WalletCliManager(ProcessManager):
     
     def __init__(self, resources_path, wallet_file_path, wallet_log_path, restore_wallet=False, restore_height=0):
         if not restore_wallet:
-            wallet_args = u'%s/bin/sumo-wallet-cli --daemon-address %s --generate-new-wallet=%s --log-file=%s ' \
+            wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --generate-new-wallet=%s --log-file=%s ' \
                                                 % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path)
         else:
-            wallet_args = u'%s/bin/sumo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --restore-height %d' \
+            wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --restore-height %d' \
                                                 % (resources_path, "fakehost", wallet_log_path, restore_height)
-        ProcessManager.__init__(self, wallet_args, "sumo-wallet-cli")
+        ProcessManager.__init__(self, wallet_args, "ryo-wallet-cli")
         self.ready = Event()
         self.last_error = ""
         
@@ -141,14 +141,15 @@ class WalletCliManager(ProcessManager):
 class WalletRPCManager(ProcessManager):
     def __init__(self, resources_path, wallet_file_path, wallet_password, app, log_level=1, enable_ssl=False):
         self.user_agent = str(uuid4().hex)
-        wallet_log_path = os.path.join(os.path.dirname(wallet_file_path), "sumo-wallet-rpc.log")
+        enable_ssl=False
+        wallet_log_path = os.path.join(os.path.dirname(wallet_file_path), "ryo-wallet-rpc.log")
         if enable_ssl:
-            wallet_rpc_args = u'%s/bin/sumo-wallet-rpc --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --user-agent %s --log-level %d --enable-ssl --cacerts-path %s' \
+            wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --user-agent %s --log-level %d --enable-ssl --cacerts-path %s' \
                                             % (resources_path, REMOTE_DAEMON_SSL_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT_SSL, self.user_agent, log_level, CA_CERTS_PATH)
         else:
-            wallet_rpc_args = u'%s/bin/sumo-wallet-rpc --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --user-agent %s --log-level %d' \
+            wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --user-agent %s --log-level %d' \
                                             % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT, self.user_agent, log_level)
-        ProcessManager.__init__(self, wallet_rpc_args, "sumo-wallet-rpc")
+        ProcessManager.__init__(self, wallet_rpc_args, "ryo-wallet-rpc")
         sleep(0.2)
         self.send_command(wallet_password)
         
