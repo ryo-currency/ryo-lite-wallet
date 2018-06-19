@@ -110,7 +110,7 @@ class BaseWebUI(QMainWindow):
         self.view.setZoomFactor(1)
         
         self.setWindowTitle(APP_NAME)
-        self.icon = self._getQIcon('sumokoin_64x64.png')
+        self.icon = self._getQIcon('ryo_lite_icon_64.png')
         self.setWindowIcon(self.icon)
         
         self.setCentralWidget(self.view)
@@ -185,11 +185,11 @@ class MainWebUI(BaseWebUI):
         
         # Setup the system tray icon
         if sys.platform == 'darwin':
-            tray_icon = 'sumokoin_16x16_mac.png'
+            tray_icon = 'ryo_lite_16x16_mac.png'
         elif sys.platform == "win32":
-            tray_icon = 'sumokoin_16x16.png'
+            tray_icon = 'ryo_lite_16x16.png'
         else:
-            tray_icon = 'sumokoin_32x32_ubuntu.png'
+            tray_icon = 'ryo_lite_32x32_ubuntu.png'
         
         self.trayIcon = QSystemTrayIcon(self._getQIcon(tray_icon))
         self.trayIcon.setToolTip(tray_icon_tooltip)
@@ -365,8 +365,19 @@ class MainWebUI(BaseWebUI):
     def _update_daemon_status(self):
         target_height = 0
         sumokoind_info = self.daemon_rpc_request.get_info()
+
+        if self.wallet_rpc_manager is not None and self.wallet_rpc_manager.is_ready():
+            walletrpc_info = self.wallet_rpc_manager.rpc_request.getheight()
+            if 'height' in walletrpc_info:
+                wallet_height = walletrpc_info['height']
+            else:
+                wallet_height = 0
+        else:
+            wallet_height = 0
+        
         if sumokoind_info['status'] == "OK":
             status = "Connected"
+            is_ready = sumokoind_info['is_ready']
             self.current_height = int(sumokoind_info['height'])
             target_height = int(sumokoind_info['target_height'])
             if target_height == 0 or target_height < self.current_height:
@@ -375,10 +386,13 @@ class MainWebUI(BaseWebUI):
                 self.target_height = target_height;
         else:
             status = sumokoind_info['status']
+            is_ready = False
         
         info = {"status": status, 
                 "current_height": self.current_height, 
                 "target_height": self.target_height,
+                "wallet_height": wallet_height,
+                "is_ready": is_ready
             }
         
         self.hub.update_daemon_status(json.dumps(info))
@@ -393,11 +407,11 @@ class MainWebUI(BaseWebUI):
     
     def update_wallet_info(self):
         if self.wallet_rpc_manager is None:
-                return
+            return
             
         if not self.wallet_rpc_manager.is_ready():
             return
-        
+
         wallet_info = {}
         try:
             balance, unlocked_balance, per_subaddress = self.wallet_rpc_manager.rpc_request.get_balance()
@@ -462,12 +476,12 @@ class MainWebUI(BaseWebUI):
                     tx["confirmation"] = self.target_height - tx["height"] if self.target_height > tx["height"] else 0
                     wallet_info["recent_txs"].append(tx)
             
-            adddress_info = self.wallet_rpc_manager.rpc_request.get_address()
-            if adddress_info['status'] == 'OK':
-                wallet_info['address'] = adddress_info['address']
+            address_info = self.wallet_rpc_manager.rpc_request.get_address()
+            if address_info['status'] == 'OK':
+                wallet_info['address'] = address_info['address']
                 wallet_info['used_subaddresses'] = []
                 wallet_info['new_subaddresses'] = []
-                for subaddress in adddress_info['addresses']:
+                for subaddress in address_info['addresses']:
                     if subaddress['used']:
                         wallet_info['used_subaddresses'].append(subaddress)
                         # update subaddress balance
@@ -501,7 +515,8 @@ class MainWebUI(BaseWebUI):
                 wallet_info['used_subaddresses'] = []
                 wallet_info['new_subaddresses'] = []
                         
-#             print(json.dumps(wallet_info, indent=4))
+            #print(json.dumps(address_info, indent=4))
+            #print(json.dumps(wallet_info, indent=4))
             
             self.hub.on_wallet_update_info_event.emit(json.dumps(wallet_info))
         except Exception, err:
@@ -563,7 +578,7 @@ class MainWebUI(BaseWebUI):
         
     def about(self):
         QMessageBox.about(self, "About", \
-            u"%s <br><br>Copyright© 2018 - Sumokoin Projects (www.sumokoin.org)" % self.agent)
+            u"%s <br><br>Copyright© 2018 Ryo Currency (ryo-currency.com)<br><br>Copyright© 2018 Sumokoin Projects (www.sumokoin.org)" % self.agent)
     
     def _load_wallet(self):
         if self.wallet_info.load():

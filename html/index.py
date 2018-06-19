@@ -624,7 +624,7 @@ html ="""
                 app_hub.on_update_log_event.connect(function(log_text, height, target_height){
                     //console.log(log_text);
                     var msg = "";
-                    if( height > 0 && target_height > 0) msg += "<strong>Processing block# " + height + "/" + target_height + "</strong><br><br>";
+                    if( height > 0 ) msg += "<strong>Processing block# " + height + "</strong><br><br>";
                     msg += log_text;
                     update_app_progress_details(msg);
                 });
@@ -641,59 +641,66 @@ html ="""
                 return false;
             }
             
+
             function update_daemon_status(status_json){
-                setTimeout(function(){
-                    var status = $.parseJSON(status_json);
-                    var daemon_status = status['status'];
-                    var current_height = status['current_height'];
-                    var target_height = status['target_height'];
-                    sync_pct = target_height > 0 ? parseInt(current_height*100/target_height) : 0;
-                    var status_text = "Network: " + daemon_status;
-                    if(daemon_status == "Connected"){
-                        if(sync_pct == 100){
-                            status_text = '<i class="fa fa-rss fa-flip-horizontal"></i>&nbsp;&nbsp;Network synchronized';
-                        }
-                        else {
-                            status_text = '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Synchronizing...';
-                        }
-                    }
-                    status_text += " " + current_height + "/" + target_height + " (<strong>" + sync_pct + "%</strong>)";
-                    progress_bar_text_low.html(status_text);
-                    progress_bar_text_high.html(status_text);
-                                                    
-                    if(sync_pct < 100){
-                        progress_bar.addClass('progress-bar-striped')
-                                                        .addClass('active');
-                    }
-                    else{
-                        progress_bar.removeClass('progress-bar-striped')
-                                                        .removeClass('active');
-                    }
-                    
-                    progress_bar.removeClass('progress-bar-success')
-                                    .removeClass('progress-bar-warning')
-                                    .removeClass('progress-bar-danger');
-                    if(sync_pct >= 95) progress_bar.addClass('progress-bar-success');
-                    else if(sync_pct >= 30) progress_bar.addClass('progress-bar-warning');
-                    else progress_bar.addClass('progress-bar-danger');
-                    
-                    if(sync_pct < 36){
-                        progress_bar_text_low.show();
-                        progress_bar_text_high.hide();
-                    }
-                    else{
-                        progress_bar_text_low.hide();
-                        progress_bar_text_high.show();
-                    }
-                    
-                    progress_bar.css("width", sync_pct + "%");
-                    progress_bar.attr("aria-valuenow", sync_pct);
-                    
-                    disable_buttons(sync_pct < 100);
-                }, 1);
+		setTimeout(function(){
+		    var status = $.parseJSON(status_json);
+console.log(status);
+		    var daemon_status = status['status'];
+		    var current_height = status['current_height'];
+		    var wallet_height = status['wallet_height']
+		    is_ready = status['is_ready'] && current_height >= 137510 && wallet_height >= current_height -1;
+
+		    var status_text = "Network: " + daemon_status;
+		    if(daemon_status == "Connected"){
+			if(is_ready){
+			    status_text = '<i class="fa fa-rss fa-flip-horizontal"></i>&nbsp;&nbsp;Network synchronized';
+			    status_text += " (Height: " + current_height + ")";
+			    progress_bar.addClass('progress-bar-success')
+				.removeClass('progress-bar-striped')
+				.removeClass('active')
+				.removeClass('progress-bar-warning')
+				.removeClass('progress-bar-danger');
+			    disable_buttons(false);
+                            hide_app_progress();
+			}
+			else {
+			    status_text = '<i class="fa fa-refresh"></i>&nbsp;&nbsp;Synchronizing...';
+			    status_text += " (Height: " + current_height + ")";
+			    progress_bar.addClass('progress-bar-striped')
+				.addClass('active')
+				.addClass('progress-bar-warning')
+				.removeClass('progress-bar-success')
+				.removeClass('progress-bar-danger');
+			    disable_buttons(true);
+			}
+			progress_bar.css("width", "100%");
+			progress_bar.attr("aria-valuenow", 100);
+			progress_bar_text_low.html('');
+			progress_bar_text_high.html(status_text);
+			progress_bar_text_low.hide();
+			progress_bar_text_high.show();
+		    }
+		    else {
+			status_text = '<i class="fa fa-flash"></i>&nbsp;&nbsp;Network: ' + daemon_status;
+
+			progress_bar.addClass('progress-bar-striped')
+			    .addClass('active')
+			    .addClass('progress-bar-danger')
+			    .removeClass('progress-bar-success')
+			    .removeClass('progress-bar-warning');
+
+			progress_bar.css("width", "1%");
+			progress_bar.attr("aria-valuenow", 1);
+			progress_bar_text_low.html(status_text);
+			progress_bar_text_high.html('');
+			progress_bar_text_low.show();
+			progress_bar_text_high.hide();
+		    }
+		    
+		}, 1);
                 
             }
-            
             
             function update_wallet_info(wallet_info_json){
                 setTimeout(function(){
@@ -1206,8 +1213,8 @@ html ="""
                                 <h5><i class="fa fa-fw fa-unlock"></i> Unlocked Balance:</h5>
                             </div>
                             <div class="col-xs-6" style="text-align:right">
-                                <h5><span id="balance">0.000000000</span> <small>SUMO</small> <span class="syncing"> (syncing)</span></h5>
-                                <h5><span id="unlocked_balance">0.000000000</span> <small>SUMO</small> <span class="syncing"> (syncing)</span></h5>
+                                <h5><span id="balance">0.000000000</span> <small>RYO</small> <span class="syncing"> (syncing)</span></h5>
+                                <h5><span id="unlocked_balance">0.000000000</span> <small>RYO</small> <span class="syncing"> (syncing)</span></h5>
                             </div>
                             <div class="col-xs-12" style="margin-top: 10px">
                                 <button id="btn_rescan_spent" type="button" class="btn btn-primary" onclick="rescan_spent()" disabled><i class="fa fa-sort-amount-desc"></i> Rescan Spent</button>
@@ -1432,7 +1439,7 @@ html ="""
         <script id="recent_tx_row_templ" type="x-tmpl-mustache">
             <div class="col-sm-12">
                 <div class="col-xs-10" style="padding-right:0">
-                    <p class="tx-list tx-{{cls_in_out}}"><i class="fa fa-{{ tx_fa_icon }}"></i> ({{tx_direction}}) <span class="tx-list txid"><a href="javascript:open_link('https://explorer.sumokoin.com/tx/{{ tx_id }}')" title="View on blockchain explorer">{{ tx_id }}</a></span></p>
+                    <p class="tx-list tx-{{cls_in_out}}"><i class="fa fa-{{ tx_fa_icon }}"></i> ({{tx_direction}}) <span class="tx-list txid"><a href="javascript:open_link('https://explorer.ryo-currency.com/tx/{{ tx_id }}')" title="View on blockchain explorer">{{ tx_id }}</a></span></p>
                     Payment ID: <span class="tx-list tx-payment-id">{{ tx_payment_id }}</span><br/>
                     Height: <span class="tx-list tx-height">{{ tx_height }}</span>  Date: <span class="tx-list tx-date">{{ tx_date }}</span> Time: <span class="tx-list tx-time">{{ tx_time }}</span> Status: <span class="tx-list tx-status">{{ tx_status }}</span><br/>
                     <p style="font-size:140%">Amount: <span class="tx-list tx-{{cls_in_out}} tx-amount {{tx_lock_cls}}">{{{tx_lock_icon}}}{{ tx_amount }}</span> <span class="{{ tx_fee_hide }}">Fee:</span> <span class="tx-list tx-{{cls_in_out}} tx-fee {{ tx_fee_hide }}">{{ tx_fee }}</span></p> 
@@ -1446,7 +1453,7 @@ html ="""
         
         <script id="tx_detail_templ" type="x-tmpl-mustache">
             <p class="tx-list tx-{{cls_in_out}}" style="font-size: 90%"><i class="fa fa-{{ tx_fa_icon }}"></i> {{tx_direction}}<br>
-                <span class="tx-list txid"><a href="javascript:open_link('https://explorer.sumokoin.com/tx/{{ tx_id }}')" title="View on blockchain explorer">{{ tx_id }}</a></span>
+                <span class="tx-list txid"><a href="javascript:open_link('https://explorer.ryo-currency.com/tx/{{ tx_id }}')" title="View on blockchain explorer">{{ tx_id }}</a></span>
             </p>
             <ul style="font-size: 90%">
                 <li>Payment ID: <span class="tx-list tx-payment-id">{{ tx_payment_id }}</span></li>
