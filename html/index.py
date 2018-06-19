@@ -672,7 +672,7 @@ console.log(status);
 				.addClass('progress-bar-warning')
 				.removeClass('progress-bar-success')
 				.removeClass('progress-bar-danger');
-			    disable_buttons(true);
+			    disable_buttons(false);
 			}
 			progress_bar.css("width", "100%");
 			progress_bar.attr("aria-valuenow", 100);
@@ -739,7 +739,7 @@ console.log(status);
                         }
                     }
                     
-                    disable_buttons(sync_pct < 100);
+                    disable_buttons(false);
                                         
                     if(current_balance != wallet_info['balance']){
                         balance_span.delay(100).fadeOut(function(){
@@ -1075,7 +1075,7 @@ console.log(status);
                 
                 current_tx_history_page = 1;
                 
-                sync_pct = 0;
+                is_ready = false;
                 //show_app_progress("Loading wallet... This can take time. Be patient!");
                 
                 receive_address = $('#receive_address');
