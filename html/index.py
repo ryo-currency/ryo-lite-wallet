@@ -650,6 +650,7 @@ console.log(status);
 		    var current_height = status['current_height'];
 		    var wallet_height = status['wallet_height']
 		    is_ready = status['is_ready'] && current_height >= 137510 && wallet_height >= current_height -1;
+console.log(status['is_ready'] +' && '+current_height+' && '+wallet_height);
 
 		    var status_text = "Network: " + daemon_status;
 		    if(daemon_status == "Connected"){
@@ -672,7 +673,7 @@ console.log(status);
 				.addClass('progress-bar-warning')
 				.removeClass('progress-bar-success')
 				.removeClass('progress-bar-danger');
-			    disable_buttons(false);
+			    disable_buttons(true);
 			}
 			progress_bar.css("width", "100%");
 			progress_bar.attr("aria-valuenow", 100);
@@ -739,7 +740,7 @@ console.log(status);
                         }
                     }
                     
-                    disable_buttons(false);
+                    disable_buttons(!is_ready);
                                         
                     if(current_balance != wallet_info['balance']){
                         balance_span.delay(100).fadeOut(function(){
@@ -876,7 +877,14 @@ console.log(status);
                 }
                 else if(!((address.substr(0, 4) == "Sumo" && address.length == 99) || 
                     (address.substr(0, 4) == "Sumi"  && address.length == 110) || 
-                    (address.substr(0, 4) == "Subo"  && address.length == 98)))
+                          (address.substr(0, 4) == "Subo"  && address.length == 98) ||
+
+                          (address.substr(0, 4) == "RYoL"  && address.length == 99) ||
+                          (address.substr(0, 4) == "RYoS"  && address.length == 99) ||
+                          (address.substr(0, 4) == "RYoN"  && address.length == 110) ||
+                          (address.substr(0, 4) == "RYoK"  && address.length == 55)
+
+                         ))
                 {
                     errors.push("Address is not valid!");
                     $('#send_address').parent().addClass('has-error');

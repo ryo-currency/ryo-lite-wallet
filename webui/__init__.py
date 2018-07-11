@@ -280,9 +280,9 @@ class MainWebUI(BaseWebUI):
          
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_daemon_status)
-        self.timer.start(30000)
+        self.timer.start(60000)
         
-        QTimer.singleShot(1000, self._load_wallet)
+        QTimer.singleShot(2000, self._load_wallet)
         QTimer.singleShot(2000, self._update_daemon_status)
                 
         
@@ -475,45 +475,51 @@ class MainWebUI(BaseWebUI):
                 for tx in self.wallet_info.wallet_transfers[:2 - len(wallet_info["recent_txs"])]:
                     tx["confirmation"] = self.target_height - tx["height"] if self.target_height > tx["height"] else 0
                     wallet_info["recent_txs"].append(tx)
-            
-            address_info = self.wallet_rpc_manager.rpc_request.get_address()
-            if address_info['status'] == 'OK':
-                wallet_info['address'] = address_info['address']
-                wallet_info['used_subaddresses'] = []
-                wallet_info['new_subaddresses'] = []
-                for subaddress in address_info['addresses']:
-                    if subaddress['used']:
-                        wallet_info['used_subaddresses'].append(subaddress)
-                        # update subaddress balance
-                        subaddress['balance'] = 0.
-                        subaddress['unlocked_balance'] = 0.
-                        for s in per_subaddress:
-                            if s['address_index'] == subaddress['address_index']:
-                                subaddress['balance'] = s['balance']/COIN
-                                subaddress['unlocked_balance'] = s['unlocked_balance']/COIN
-                                break
-                    else:
-                        if subaddress['address_index'] > 0:
-                            wallet_info['new_subaddresses'].append(subaddress)
-                        
-                wallet_info['used_subaddresses'] = sorted(wallet_info['used_subaddresses'], 
-                                                          key=lambda k:k['balance'], 
-                                                          reverse=True)
-            
-                # auto-generate new subaddresses if not enough available
-                if len(wallet_info['new_subaddresses']) < MAX_NEW_SUBADDRESSES:
-                    for _ in range(MAX_NEW_SUBADDRESSES - len(wallet_info['new_subaddresses'])):
-                        new_subaddress = self.wallet_rpc_manager.rpc_request.create_address()
-                        new_subaddress['label'] = ""
-                        new_subaddress['used'] = False
-                        wallet_info['new_subaddresses'].append(new_subaddress)
-                
-                if len(wallet_info['new_subaddresses']) > MAX_NEW_SUBADDRESSES:
-                    wallet_info['new_subaddresses'] = wallet_info['new_subaddresses'][0:MAX_NEW_SUBADDRESSES]
-            else:
-                wallet_info['address'] = ""
-                wallet_info['used_subaddresses'] = []
-                wallet_info['new_subaddresses'] = []
+
+            load_address_attempt = 0
+            while load_address_attempt < 10:
+		address_info = self.wallet_rpc_manager.rpc_request.get_address()
+		if address_info['status'] == 'OK':
+                    load_address_attempt = 10
+		    wallet_info['address'] = address_info['address']
+		    wallet_info['used_subaddresses'] = []
+		    wallet_info['new_subaddresses'] = []
+		    for subaddress in address_info['addresses']:
+			if subaddress['used']:
+			    wallet_info['used_subaddresses'].append(subaddress)
+			    # update subaddress balance
+			    subaddress['balance'] = 0.
+			    subaddress['unlocked_balance'] = 0.
+			    for s in per_subaddress:
+				if s['address_index'] == subaddress['address_index']:
+				    subaddress['balance'] = s['balance']/COIN
+				    subaddress['unlocked_balance'] = s['unlocked_balance']/COIN
+				    break
+			else:
+			    if subaddress['address_index'] > 0:
+				wallet_info['new_subaddresses'].append(subaddress)
+
+		    wallet_info['used_subaddresses'] = sorted(wallet_info['used_subaddresses'], 
+							      key=lambda k:k['balance'], 
+							      reverse=True)
+
+		    # auto-generate new subaddresses if not enough available
+		    if len(wallet_info['new_subaddresses']) < MAX_NEW_SUBADDRESSES:
+			for _ in range(MAX_NEW_SUBADDRESSES - len(wallet_info['new_subaddresses'])):
+			    new_subaddress = self.wallet_rpc_manager.rpc_request.create_address()
+			    new_subaddress['label'] = ""
+			    new_subaddress['used'] = False
+			    wallet_info['new_subaddresses'].append(new_subaddress)
+
+		    if len(wallet_info['new_subaddresses']) > MAX_NEW_SUBADDRESSES:
+			wallet_info['new_subaddresses'] = wallet_info['new_subaddresses'][0:MAX_NEW_SUBADDRESSES]
+		else:
+                    load_address_attempt += 1
+		    wallet_info['address'] = ""
+		    wallet_info['used_subaddresses'] = []
+		    wallet_info['new_subaddresses'] = []
+                    self.hub.app_process_events(1)
+                                        
                         
             #print(json.dumps(address_info, indent=4))
             #print(json.dumps(wallet_info, indent=4))
@@ -544,7 +550,7 @@ class MainWebUI(BaseWebUI):
             try:
                 os.remove(wallet_filepath)
                 os.remove(wallet_filepath + ".keys")
-                os.remove(wallet_filepath + ".address.txt")
+                #os.remove(wallet_filepath + ".address.txt")
             except:
                 pass
         

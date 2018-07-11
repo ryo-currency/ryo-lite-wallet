@@ -47,9 +47,6 @@ class RPCRequest(Thread):
         self.rpc_input = rpc_input
         self.app = app
             
-        if user_agent is not None:
-            self.headers.update({"User-Agent": user_agent})
-        
         self.response_queue = Queue(1)
         self.daemon = True
         self.enable_ssl = False
@@ -70,21 +67,13 @@ class RPCRequest(Thread):
         self.rpc_input.update({"jsonrpc": "2.0", "id": "%d" % rpc_id})
         
         try:
-            if self.enable_ssl:
-                response = requests.post(
-                    self.url,
-                    data=json.dumps(self.rpc_input),
-                    headers=self.headers,
-                    timeout=120)
-
-            else:
-                response = requests.post(
-                    self.url,
-                    data=json.dumps(self.rpc_input),
-                    headers=self.headers,
-                    timeout=120)
+            response = requests.post(
+                self.url,
+                data=json.dumps(self.rpc_input),
+                headers=self.headers,
+                timeout=120)
             res_json = response.json()
-#             print(json.dumps(res_json, indent=4))
+            print(json.dumps(res_json, indent=4))
         except ConnectionError:
             return {"status": "Error", "error": {"message": "Disconnected"} }
         except:
