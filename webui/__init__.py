@@ -280,9 +280,9 @@ class MainWebUI(BaseWebUI):
          
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_daemon_status)
-        self.timer.start(30000)
+        self.timer.start(60000)
         
-        QTimer.singleShot(1000, self._load_wallet)
+        QTimer.singleShot(2000, self._load_wallet)
         QTimer.singleShot(2000, self._update_daemon_status)
                 
         

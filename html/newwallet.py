@@ -32,8 +32,8 @@ html ="""
                 var seed = $('#seed').val();
                 var restore_height = $('#restore_height_txt').val();
                 seed = replaceAll(seed, "\\n", " ");
-                if(seed.length == 0 || seed.split(" ").length != 26)
-                    alert("Please paste 26 mnemonic seed words to above box", "Seed words required!");
+                if(seed.length == 0 || (seed.split(" ").length != 26 && seed.split(" ").length != 25 && seed.split(" ").length != 14))
+                    alert("Please paste mnemonic seed words to above box", "Seed words required!");
                 else{
                     var h =  !isNaN(parseInt(restore_height)) ? parseInt(restore_height) : 0;
                     if(h < 0) h = 0;
@@ -263,9 +263,9 @@ html ="""
                         <h4>Restore Wallet <small>(would take very long time)</small></h4>
                         <div class="form-group">
                             <label for="seed">Mnemonic Seed:</label>    <button id="paste_seed_btn" type="button" class="btn btn-warning btn-sm" style="text-transform: none" onclick="paste_seed()"><i class="fa fa-paste"></i> Paste</button>
-                            <textarea id="seed" class="form-control" placeholder="Paste 26 mnemonic seed words here (use [Paste] button above or press Ctrl+V)" style="height:80px;margin-bottom:10px;margin-top:10px;font-size:100%"></textarea>
+                            <textarea id="seed" class="form-control" placeholder="Paste mnemonic seed words here (use [Paste] button above or press Ctrl+V)" style="height:80px;margin-bottom:10px;margin-top:10px;font-size:100%"></textarea>
                             <button id="restore_wallet_btn" type="button" class="btn btn-primary" onclick="restore_wallet()"><i class="fa fa-undo"></i> Restore</button>
-                            <input id="restore_height_txt" type="text" class="form-control" style="display: inline-block; float:right; width: 100px" value="0"/> <label for="restore_height_txt" style="font-weight: bold; display:inline-block; float:right; margin-right:20px;">Restore from height#</label>
+                            <input id="restore_height_txt" type="text" class="form-control" style="display: none; float:right; width: 100px" value="0"/> <label for="restore_height_txt" style="font-weight: bold; display:none; float:right; margin-right:20px;">Restore from height#</label>
                         </div>
                     </div>
                 </div>
@@ -305,6 +305,7 @@ html ="""
                         <div class="form-group">
                             <h5><i>Balance:</i> <span id="balance">0.000000000</span></h5>
                             <h5><i>Unlocked Balance:</i> <span id="unlocked_balance">0.000000000</span></h5>
+                            <h5><i>Note:</i> You may need to continue scanning on the next screen before your entire balance shows up</h5>
                         </div>
                     </div>
                 </div>
