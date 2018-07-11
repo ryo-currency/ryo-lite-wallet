@@ -302,7 +302,7 @@ html ="""
                             <label for="wallet_viewkey">View key (private)</label>
                             <input id="wallet_viewkey" class="form-control address-box" type="text" readonly="readonly" />
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="display:none">
                             <h5><i>Balance:</i> <span id="balance">0.000000000</span></h5>
                             <h5><i>Unlocked Balance:</i> <span id="unlocked_balance">0.000000000</span></h5>
                             <h5><i>Note:</i> You may need to continue scanning on the next screen before your entire balance shows up</h5>

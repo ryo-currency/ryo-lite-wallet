@@ -352,9 +352,15 @@ class Hub(QObject):
             if not self.is_restore_wallet_in_progress:
                 self.ui.reset_wallet()
                 return
-            
-            wallet_address = self.ui.wallet_rpc_manager.rpc_request.get_address()
-            self.ui.wallet_info.wallet_address = wallet_address["addresses"][0]["address"]
+
+            while True:
+                try:
+                    wallet_address = self.ui.wallet_rpc_manager.rpc_request.get_address()
+                    self.ui.wallet_info.wallet_address = wallet_address["addresses"][0]["address"]
+                    break;
+                except Exception, err2:
+                    log(str(err2), LEVEL_ERROR)
+                    self.app_process_events(5)
 
             self._show_wallet_info()
             self.ui.wallet_info.save()

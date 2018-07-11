@@ -544,7 +544,7 @@ class MainWebUI(BaseWebUI):
             try:
                 os.remove(wallet_filepath)
                 os.remove(wallet_filepath + ".keys")
-                os.remove(wallet_filepath + ".address.txt")
+                #os.remove(wallet_filepath + ".address.txt")
             except:
                 pass
         

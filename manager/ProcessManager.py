@@ -84,7 +84,7 @@ class WalletCliManager(ProcessManager):
         else:
             restore_height = 0
             wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --create-address-file --restore-height %d' \
-                                                % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_log_path, restore_height)
+                                                % (resources_path, "fakehost", wallet_log_path, restore_height)
         ProcessManager.__init__(self, wallet_args, "ryo-wallet-cli")
         self.ready = Event()
         self.last_error = ""
@@ -145,7 +145,7 @@ class WalletRPCManager(ProcessManager):
         enable_ssl=False
         wallet_log_path = os.path.join(os.path.dirname(wallet_file_path), "ryo-wallet-rpc.log")
 
-        #log_level = 2
+        log_level = 2
 
         wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --disable-rpc-login --prompt-for-password --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --log-level %d' \
                                             % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT, log_level)
