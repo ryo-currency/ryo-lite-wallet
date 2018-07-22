@@ -22,12 +22,12 @@ html ="""
                     $('#seed').val(text);
                 });
             }
-            
+
             function create_new_wallet(){
                 app_hub.create_new_wallet('', 0);
                 return false;
             }
-            
+
             function restore_wallet(){
                 var seed = $('#seed').val();
                 var restore_height = $('#restore_height_txt').val();
@@ -41,12 +41,12 @@ html ="""
                 }
                 return false;
             }
-            
+
             function import_wallet(){
                 app_hub.import_wallet();
                 return false;
             }
-            
+
             function show_progress(header){
                 $('#gen_wallet_btn').disable(true);
                 $('#restore_wallet_btn').disable(true);
@@ -55,7 +55,7 @@ html ="""
                 $('#progress_header').html(header);
                 $('#progress').show();
             }
-            
+
             function show_wallet_info(info_json){
                 var wallet_info = $.parseJSON(info_json);
                 $('#wallet_address').val(wallet_info['address']);
@@ -63,18 +63,18 @@ html ="""
                 $('#wallet_viewkey').val(wallet_info['view_key']);
                 $('#balance').html(wallet_info['balance']);
                 $('#unlocked_balance').html(wallet_info['unlocked_balance']);
-                
+
                 $('#progress').hide();
                 $('#container').show();
                 $('#main_page').hide();
                 $('#wallet_info').show();
             }
-            
+
             function close_dialog(){
                 app_hub.close_new_wallet_dialog();
                 return false;
             }
-            
+
             function reset_ui(){
                 $('#gen_wallet_btn').disable(false);
                 $('#restore_wallet_btn').disable(false);
@@ -84,7 +84,7 @@ html ="""
                 $('#main_page').show();
                 $('#wallet_info').hide();
             }
-            
+
             function update_processed_block_height(height, target_height){
                 var html = height;
                 if(target_height > 0 && target_height > height){
@@ -96,19 +96,19 @@ html ="""
                 }
                 $('#processed_block_height').html(html);
             }
-            
+
             function paste_seed(){
                 app_hub.paste_seed_words();
                 return false;
             }
-            
+
             function cancel_progress()
             {
                 $('#btn_cancel_progress').disable(true);
                 app_hub.cancel_restore_wallet_progress();
                 $('#btn_cancel_progress').disable(false);
             }
-            
+
         </script>
         <link href="./css/bootstrap.min.css" rel="stylesheet">
         <link href="./css/font-awesome.min.css" rel="stylesheet">
@@ -118,12 +118,12 @@ html ="""
                 -moz-box-sizing: border-box;
                 box-sizing: border-box;
             }
-            
+
             body {
                 /* Disable text selection */
                 -webkit-user-select: none;  /* webkit all */
                 user-select: none;          /* regular */
-              
+
                 cursor: default;
                 background-color: #666;
                 color: #76A500;
@@ -136,52 +136,52 @@ html ="""
                 height: 100%;
                 overflow: hidden;
             }
-            
+
             a, a:hover, a:active, a:focus {
                 text-decoration: none;
                 outline: 0;
                 cursor: default;
             }
-            
+
             a, a:active, a:focus{
                 color: #337AB7;
             }
-            
+
             a:hover{
                 color: #fff;
             }
-            
-            
-                        
+
+
+
             table {
                 border-spacing: 0;
                 border-collapse: collapse;
                 font-size: 90%;
             }
-            
-            
+
+
             table thead tr{
                 height: 4.5em;
             }
-            
+
             table tbody tr {
                 color: #aaa;
                 height: 6em;
                 line-height: 1.6em;
                 border-top: 1px solid #aaa;
             }
-            
+
             table thead tr th{
                 text-align: center;
                 border-bottom: 1px solid #aaa;
                 text-size: 18px;
                 padding: auto 1em;
             }
-            
+
             table tr td {
                 text-align: center;
             }
-            
+
             .row {
                 margin: 5px;
             }
@@ -189,7 +189,7 @@ html ="""
                 background: #fff;
                 padding: 10px 30px;
             }
-            
+
             input[type="file"] {
                 display: inline-block;
                 visibility: hidden;
@@ -200,7 +200,7 @@ html ="""
                 padding: 6px 12px;
                 cursor: pointer;
             }
-            
+
             .centered {
               position: fixed;
               width: 730px;
@@ -210,7 +210,7 @@ html ="""
               /* bring your own prefixes */
               transform: translate(-50%, -50%);
             }
-            
+
             #progress {
                 background:#fff;
                 width:800px;
@@ -219,26 +219,26 @@ html ="""
                 text-align:center;
                 display:none;
             }
-            
+
             .form-control.address-box{
                 font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
                 font-size: 85%;
                 /*color: #c7254e;*/
                 color: #000;
             }
-            
+
             .container{
                 padding: 0;
                 width: 100%;
             }
-            
+
             textarea{
                 border:none;
                 width:100%;
                 resize:none;
                 font-weight:bold;
             }
-            
+
             .form-group h5 i{
                 color: #76A500;
                 font-style: normal;
@@ -265,7 +265,7 @@ html ="""
                             <label for="seed">Mnemonic Seed:</label>    <button id="paste_seed_btn" type="button" class="btn btn-warning btn-sm" style="text-transform: none" onclick="paste_seed()"><i class="fa fa-paste"></i> Paste</button>
                             <textarea id="seed" class="form-control" placeholder="Paste mnemonic seed words here (use [Paste] button above or press Ctrl+V)" style="height:80px;margin-bottom:10px;margin-top:10px;font-size:100%"></textarea>
                             <button id="restore_wallet_btn" type="button" class="btn btn-primary" onclick="restore_wallet()"><i class="fa fa-undo"></i> Restore</button>
-                            <input id="restore_height_txt" type="text" class="form-control" style="display: none; float:right; width: 100px" value="0"/> <label for="restore_height_txt" style="font-weight: bold; display:none; float:right; margin-right:20px;">Restore from height#</label>
+                            <input id="restore_height_txt" type="text" class="form-control" style="float:right; width: 100px" value="0"/> <label for="restore_height_txt" style="font-weight: bold; float:right; margin-right:20px;">Restore from height#</label>
                         </div>
                     </div>
                 </div>
@@ -302,10 +302,9 @@ html ="""
                             <label for="wallet_viewkey">View key (private)</label>
                             <input id="wallet_viewkey" class="form-control address-box" type="text" readonly="readonly" />
                         </div>
-                        <div class="form-group" style="display:none">
+                        <div class="form-group">
                             <h5><i>Balance:</i> <span id="balance">0.000000000</span></h5>
                             <h5><i>Unlocked Balance:</i> <span id="unlocked_balance">0.000000000</span></h5>
-                            <h5><i>Note:</i> You may need to continue scanning on the next screen before your entire balance shows up</h5>
                         </div>
                     </div>
                 </div>
@@ -323,7 +322,7 @@ html ="""
             <h5 id="processing_block">Processing block#: <code id="processed_block_height">0</code></h5><br/><br/>
             <!--<img src="./images/ajax-loader2.gif" />-->
             <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
-            <p style="margin-top: 140px"><button id="btn_cancel_progress" type="button" class="btn btn-warning center" onclick="cancel_progress()"><i class="fa fa-close"></i> Cancel</button></p> 
+            <p style="margin-top: 140px"><button id="btn_cancel_progress" type="button" class="btn btn-warning center" onclick="cancel_progress()"><i class="fa fa-close"></i> Cancel</button></p>
         </div>
     </div>
     </body>
