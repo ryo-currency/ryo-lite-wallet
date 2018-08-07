@@ -27,7 +27,8 @@ DETACHED_PROCESS = 0x00000008  # forcing the child to have no console at all
 class ProcessManager(Thread):
     def __init__(self, proc_args, proc_name=""):
         Thread.__init__(self)
-        args_array = proc_args.encode( sys.getfilesystemencoding() ).split(u' ')
+        #args_array = proc_args.encode( sys.getfilesystemencoding() ).split(u' ')
+        args_array = proc_args
         self.proc = Popen(args_array,
                           shell=False,
                           stdout=PIPE, stderr=STDOUT, stdin=PIPE,
@@ -77,13 +78,15 @@ class ProcessManager(Thread):
 class WalletCliManager(ProcessManager):
     fail_to_connect_str = "wallet failed to connect to daemon"
 
-    def __init__(self, resources_path, wallet_file_path, wallet_log_path, restore_wallet=False, restore_height=0):
+    def __init__(self, resources_path, wallet_file_path, wallet_log_path, restore_wallet=False, restore_height=0, seed=''):
         if not restore_wallet:
-            wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --generate-new-wallet=%s --log-file=%s ' \
-                                                % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path)
+            #wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --generate-new-wallet=%s --log-file=%s ' \
+                #% (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path)
+            wallet_args = [u'%s/bin/ryo-wallet-cli'%resources_path, '--daemon-address', REMOTE_DAEMON_ADDRESS, '--create-address-file', '--generate-new-wallet', wallet_file_path, '--log-file', wallet_log_path]
         else:
-            wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --create-address-file --restore-height %d' \
-                                                % (resources_path, "fakehost", wallet_log_path, restore_height)
+            #wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --create-address-file --restore-height %d' \
+                #% (resources_path, "fakehost", wallet_log_path, restore_height)
+            wallet_args = [u'%s/bin/ryo-wallet-cli'%resources_path, '--daemon-address', REMOTE_DAEMON_ADDRESS, '--create-address-file', '--log-file', wallet_log_path, '--restore-deterministic-wallet', '--electrum-seed', seed, '--restore-height', '0']
         ProcessManager.__init__(self, wallet_args, "ryo-wallet-cli")
         self.ready = Event()
         self.last_error = ""
@@ -146,10 +149,11 @@ class WalletRPCManager(ProcessManager):
 
         log_level = 2
 
-        wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --disable-rpc-login --prompt-for-password --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --log-level %d' \
-                                            % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT, log_level)
+        #wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --disable-rpc-login --prompt-for-password --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --log-level %d' \
+            #% (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT, log_level)
+        wallet_rpc_args = [u'%s/bin/ryo-wallet-rpc'%resources_path, '--disable-rpc-login', '--prompt-for-password', '--daemon-address', REMOTE_DAEMON_ADDRESS, '--wallet-file', wallet_file_path, '--log-file', wallet_log_path, '--rpc-bind-port', '%d'%WALLET_RPC_PORT, '--log-level', '%d'%log_level]
 
-        print(wallet_rpc_args)
+        #print(wallet_rpc_args)
         ProcessManager.__init__(self, wallet_rpc_args, "ryo-wallet-rpc")
         sleep(0.2)
         self.send_command(wallet_password)

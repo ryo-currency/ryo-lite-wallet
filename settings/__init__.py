@@ -15,7 +15,7 @@ from utils.common import getHomeDir, makeDir
 
 USER_AGENT = "Ryo LITE Wallet"
 APP_NAME = "Ryo LITE Wallet"
-VERSION = [0, 2, 0, 3]
+VERSION = [0, 3, 0, 0]
 
 
 _data_dir = makeDir(os.path.join(getHomeDir(), 'RyoLITEWallet'))
@@ -45,7 +45,7 @@ COIN = 1000000000.0
 WALLET_RPC_PORT = 19836
 WALLET_RPC_PORT_SSL = 19836
 
-REMOTE_DAEMON_HOST = "178.63.69.7"
+REMOTE_DAEMON_HOST = "geo.ryoblocks.com"
 REMOTE_DAEMON_PORT = 12211
 REMOTE_DAEMON_SSL_PORT = 12211
 REMOTE_DAEMON_ADDRESS = "%s:%s" % (REMOTE_DAEMON_HOST, REMOTE_DAEMON_PORT)
