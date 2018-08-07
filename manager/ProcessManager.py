@@ -27,27 +27,28 @@ DETACHED_PROCESS = 0x00000008  # forcing the child to have no console at all
 class ProcessManager(Thread):
     def __init__(self, proc_args, proc_name=""):
         Thread.__init__(self)
-        args_array = proc_args.encode( sys.getfilesystemencoding() ).split(u' ')
+        #args_array = proc_args.encode( sys.getfilesystemencoding() ).split(u' ')
+        args_array = proc_args
         self.proc = Popen(args_array,
-                          shell=False, 
-                          stdout=PIPE, stderr=STDOUT, stdin=PIPE, 
+                          shell=False,
+                          stdout=PIPE, stderr=STDOUT, stdin=PIPE,
                           creationflags=CREATE_NO_WINDOW)
         self.proc_name = proc_name
         self.daemon = True
         log("[%s] started" % proc_name, LEVEL_INFO, self.proc_name)
-    
+
     def run(self):
         for line in iter(self.proc.stdout.readline, b''):
             log(">>> " + line.rstrip(), LEVEL_DEBUG, self.proc_name)
-        
+
         if not self.proc.stdout.closed:
             self.proc.stdout.close()
-            
+
     def send_command(self, cmd):
         self.proc.stdin.write( (cmd + u"\n").encode("utf-8") )
         sleep(0.1)
-    
-        
+
+
     def stop(self):
         if self.is_proc_running():
             self.send_command('exit')
@@ -69,26 +70,27 @@ class ProcessManager(Thread):
                 else:
                     break
         log("[%s] stopped" % self.proc_name, LEVEL_INFO, self.proc_name)
-    
+
     def is_proc_running(self):
         return (self.proc.poll() is None)
-    
+
 
 class WalletCliManager(ProcessManager):
     fail_to_connect_str = "wallet failed to connect to daemon"
-    
-    def __init__(self, resources_path, wallet_file_path, wallet_log_path, restore_wallet=False, restore_height=0):
+
+    def __init__(self, resources_path, wallet_file_path, wallet_log_path, restore_wallet=False, restore_height=0, seed=''):
         if not restore_wallet:
-            wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --generate-new-wallet=%s --log-file=%s ' \
-                                                % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path)
+            #wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --generate-new-wallet=%s --log-file=%s ' \
+                #% (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path)
+            wallet_args = [u'%s/bin/ryo-wallet-cli'%resources_path, '--daemon-address', REMOTE_DAEMON_ADDRESS, '--create-address-file', '--generate-new-wallet', wallet_file_path, '--log-file', wallet_log_path]
         else:
-            restore_height = 0
-            wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --create-address-file --restore-height %d' \
-                                                % (resources_path, "fakehost", wallet_log_path, restore_height)
+            #wallet_args = u'%s/bin/ryo-wallet-cli --daemon-address %s --log-file=%s --restore-deterministic-wallet --create-address-file --restore-height %d' \
+                #% (resources_path, "fakehost", wallet_log_path, restore_height)
+            wallet_args = [u'%s/bin/ryo-wallet-cli'%resources_path, '--daemon-address', REMOTE_DAEMON_ADDRESS, '--create-address-file', '--log-file', wallet_log_path, '--restore-deterministic-wallet', '--electrum-seed', seed, '--restore-height', '0']
         ProcessManager.__init__(self, wallet_args, "ryo-wallet-cli")
         self.ready = Event()
         self.last_error = ""
-        
+
     def run(self):
         is_ready_str = "Background refresh thread started"
         err_str = "Error:"
@@ -101,20 +103,20 @@ class WalletCliManager(ProcessManager):
                 log("[%s]>>> %s" % (self.proc_name, line.rstrip()), LEVEL_ERROR, self.proc_name)
             else:
                 log("[%s]>>> %s" % (self.proc_name, line.rstrip()), LEVEL_DEBUG, self.proc_name)
-        
+
         if not self.proc.stdout.closed:
             self.proc.stdout.close()
-    
+
     def is_ready(self):
         return self.ready.is_set()
-            
-    
+
+
     def is_connected(self):
         self.send_command("refresh")
         if self.fail_to_connect_str in self.last_error:
             return False
         return True
-    
+
     def stop(self):
         if self.is_proc_running():
             self.send_command('exit')
@@ -147,14 +149,15 @@ class WalletRPCManager(ProcessManager):
 
         log_level = 2
 
-        wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --disable-rpc-login --prompt-for-password --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --log-level %d' \
-                                            % (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT, log_level)
+        #wallet_rpc_args = u'%s/bin/ryo-wallet-rpc --disable-rpc-login --prompt-for-password --daemon-address %s --wallet-file %s --log-file %s --rpc-bind-port %d --log-level %d' \
+            #% (resources_path, REMOTE_DAEMON_ADDRESS, wallet_file_path, wallet_log_path, WALLET_RPC_PORT, log_level)
+        wallet_rpc_args = [u'%s/bin/ryo-wallet-rpc'%resources_path, '--disable-rpc-login', '--prompt-for-password', '--daemon-address', REMOTE_DAEMON_ADDRESS, '--wallet-file', wallet_file_path, '--log-file', wallet_log_path, '--rpc-bind-port', '%d'%WALLET_RPC_PORT, '--log-level', '%d'%log_level]
 
-        print(wallet_rpc_args)
+        #print(wallet_rpc_args)
         ProcessManager.__init__(self, wallet_rpc_args, "ryo-wallet-rpc")
         sleep(0.2)
         self.send_command(wallet_password)
-        
+
         self.rpc_request = WalletRPCRequest(app, self.user_agent, enable_ssl)
 #         self.rpc_request.start()
         self._stopped = False
@@ -163,7 +166,7 @@ class WalletRPCManager(ProcessManager):
         self.is_password_invalid = Event()
         self.last_log_lines = []
         self.last_error = ""
-    
+
     def run(self):
         rpc_ready_strs = ["Binding on 127.0.0.1:%d" % WALLET_RPC_PORT, "Starting wallet RPC server", "Run net_service loop", "Refresh done", "RPC server ready"]
         err_str = "ERROR"
@@ -171,10 +174,10 @@ class WalletRPCManager(ProcessManager):
         height_regex = re.compile(r"Processed block: \<([a-z0-9]+)\>, height (\d+)")
         height_regex2 = re.compile(r"Skipped block by height: (\d+)")
         height_regex3 = re.compile(r"Skipped block by timestamp, height: (\d+)")
-        
+
         for line in iter(self.proc.stdout.readline, b''):
             if self._stopped: break
-            
+
             m_height = height_regex.search(line)
             if m_height: self.block_height = m_height.group(2)
             if not m_height:
@@ -183,11 +186,11 @@ class WalletRPCManager(ProcessManager):
             if not m_height:
                 m_height = height_regex3.search(line)
                 if m_height: self.block_height = m_height.group(1)
-                
+
             if not self._ready.is_set() and any(s in line for s in rpc_ready_strs):
                 self._ready.set()
                 log("RPC server ready!", LEVEL_INFO, self.proc_name)
-                
+
             if err_str in line:
                 self.last_error = line.rstrip()
                 if not self.is_password_invalid.is_set() and invalid_password_str in line:
@@ -199,20 +202,20 @@ class WalletRPCManager(ProcessManager):
                 log(line.rstrip(), LEVEL_INFO, self.proc_name)
             else:
                 log(line.rstrip(), LEVEL_DEBUG, self.proc_name)
-            
+
             if len(self.last_log_lines) > 1:
                 self.last_log_lines.pop(0)
             self.last_log_lines.append(line[:120])
-            
+
         if not self.proc.stdout.closed:
-            self.proc.stdout.close()    
+            self.proc.stdout.close()
 
     def is_ready(self):
         return self._ready.is_set()
-    
+
     def is_invalid_password(self):
         return self.is_password_invalid.is_set()
-    
+
     def stop(self, force=False):
         if not force: self.rpc_request.stop_wallet()
         if self.is_proc_running():
@@ -228,12 +231,12 @@ class WalletRPCManager(ProcessManager):
                         break
                 else:
                     break
-        
+
         self._stopped = True
         self._ready = Event()
         self.block_height = 0
         self.is_password_invalid = Event()
         self.last_log_lines = []
         self.last_error = ""
-        
-        log("[%s] stopped" % self.proc_name, LEVEL_INFO, self.proc_name)        
+
+        log("[%s] stopped" % self.proc_name, LEVEL_INFO, self.proc_name)

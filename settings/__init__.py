@@ -15,7 +15,7 @@ from utils.common import getHomeDir, makeDir
 
 USER_AGENT = "Ryo LITE Wallet"
 APP_NAME = "Ryo LITE Wallet"
-VERSION = [0, 2, 0, 2]
+VERSION = [0, 3, 0, 0]
 
 
 _data_dir = makeDir(os.path.join(getHomeDir(), 'RyoLITEWallet'))
