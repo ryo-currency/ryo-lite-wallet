@@ -265,7 +265,7 @@ html ="""
                             <label for="seed">Mnemonic Seed:</label>    <button id="paste_seed_btn" type="button" class="btn btn-warning btn-sm" style="text-transform: none" onclick="paste_seed()"><i class="fa fa-paste"></i> Paste</button>
                             <textarea id="seed" class="form-control" placeholder="Paste mnemonic seed words here (use [Paste] button above or press Ctrl+V)" style="height:80px;margin-bottom:10px;margin-top:10px;font-size:100%"></textarea>
                             <button id="restore_wallet_btn" type="button" class="btn btn-primary" onclick="restore_wallet()"><i class="fa fa-undo"></i> Restore</button>
-                            <input id="restore_height_txt" type="text" class="form-control" style="float:right; width: 100px" value="0"/> <label for="restore_height_txt" style="font-weight: bold; float:right; margin-right:20px;">Restore from height#</label>
+                            <input id="restore_height_txt" type="text" class="form-control" style="float:right; width: 100px; display:none;" value="0"/> <label for="restore_height_txt" style="font-weight: bold; float:right; margin-right:20px; display:none;">Restore from height#</label>
                         </div>
                     </div>
                 </div>
@@ -283,7 +283,7 @@ html ="""
                     </div>
                 </div>
             </div>
-            <div id="wallet_info" style="display: none">
+            <div id="wallet_info">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="alert alert-success" role="alert"><strong>Wallet was successfully created/restored or imported!</strong></div>
