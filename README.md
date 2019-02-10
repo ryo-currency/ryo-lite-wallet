@@ -1,3 +1,7 @@
+# This repo has been deprecated
+
+[Ryo Wallet Atom](https://github.com/ryo-currency/ryo-wallet) has been designed from scratch to replace this project. This wallet will no longer work with the Ryo-currency network.
+
 # Ryo LITE Wallet
 
 Copyright (c) 2018, Ryo-currency ( https://ryo-currency.com )
